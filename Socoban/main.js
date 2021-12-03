@@ -12,12 +12,12 @@ let mapY = 11;
 var map =
     `    XXXXX             
     X   X             
-    X*  X             
+    X   X             
   XXX  *XXX           
   X  *  * X           
 XXX X XXX X     XXXXXX
 X   X XXX XXXXXXX  ..X
-X *  *             ..X
+X *  *            *..X
 XXXXX XXXX X@XXXX  ..X
     X      XXX  XXXXXX
     XXXXXXXX          `
@@ -25,11 +25,8 @@ XXXXX XXXX X@XXXX  ..X
 var matrix = [];
 let symCount = 0;
 
-var startX;
-var startY;
-
 document.addEventListener('keydown', function (e) {
-    if (e.repeat == false) {
+    if (!e.repeat) {
         keys.push(e.code);
     }
 })
@@ -38,33 +35,27 @@ class Player {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.r = 25;
-        this.matrixX = startX;
-        this.matrixY = startY;
+        this.r = cellSize / 2 - 5;
     }
 
     Up() {
         if (this.checkMove('u')) {
-            this.matrixY--;
-            this.y -= cellSize;
+            this.y--;
         }
     }
     Down() {
         if (this.checkMove('d')) {
-            this.matrixY++;
-            this.y += cellSize;
+            this.y++;
         }
     }
     Left() {
         if (this.checkMove('l')) {
-            this.matrixX--;
-            this.x -= cellSize;
+            this.x--;
         }
     }
     Right() {
         if (this.checkMove('r')) {
-            this.matrixX++;
-            this.x += cellSize;
+            this.x++;
         }
     }
 
@@ -73,7 +64,7 @@ class Player {
         ctx.lineWidth = 4;
         ctx.strokeStyle = "black";
         ctx.fillStyle = "lightblue";
-        ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
+        ctx.arc(this.x * cellSize + cellSize/2, this.y * cellSize+cellSize/2, this.r, 0, 2 * Math.PI);
         ctx.stroke();
         ctx.fill();
         ctx.closePath();
@@ -97,39 +88,39 @@ class Player {
     }
 
     checkMove(dir) {
-        if (dir == 'u' && matrix[this.matrixY - 1][this.matrixX] != 'X') {
+        if (dir == 'u' && matrix[this.y - 1][this.x] != 'X') {
             for (let i = 0; i < containers.length; i++) {
-                if (containers[i].CheckMove(this.matrixY - 1, this.matrixX, dir)) {
+                if (containers[i].CheckMove(this.y - 1, this.x, dir)) {
                     return true;
                 }
-                if(containers[i].matrixX == this.matrixX && containers[i].matrixY == this.matrixY - 1) return false
+                if(containers[i].x == this.x && containers[i].y == this.y - 1) return false
             }
             return true;
         }
-        if (dir == 'd' && matrix[this.matrixY + 1][this.matrixX] != 'X') {
+        if (dir == 'd' && matrix[this.y + 1][this.x] != 'X') {
             for (let i = 0; i < containers.length; i++) {
-                if (containers[i].CheckMove(this.matrixY + 1, this.matrixX, dir)) {
+                if (containers[i].CheckMove(this.y + 1, this.x, dir)) {
                     return true;
                 }
-                if(containers[i].matrixX == this.matrixX && containers[i].matrixY == this.matrixY + 1) return false
+                if(containers[i].x == this.x && containers[i].y == this.y + 1) return false
             }
             return true;
         }
-        if (dir == 'l' && matrix[this.matrixY][this.matrixX - 1] != 'X') {
+        if (dir == 'l' && matrix[this.y][this.x - 1] != 'X') {
             for (let i = 0; i < containers.length; i++) {
-                if (containers[i].CheckMove(this.matrixY, this.matrixX - 1, dir)) {
+                if (containers[i].CheckMove(this.y, this.x - 1, dir)) {
                     return true;
                 }
-                if(containers[i].matrixX == this.matrixX - 1 && containers[i].matrixY == this.matrixY) return false
+                if(containers[i].x == this.x - 1 && containers[i].y == this.y) return false
             }
             return true;
         }
-        if (dir == 'r' && matrix[this.matrixY][this.matrixX + 1] != 'X') {
+        if (dir == 'r' && matrix[this.y][this.x + 1] != 'X') {
             for (let i = 0; i < containers.length; i++) {
-                if (containers[i].CheckMove(this.matrixY, this.matrixX + 1, dir)) {
+                if (containers[i].CheckMove(this.y, this.x + 1, dir)) {
                     return true;
                 }
-                if(containers[i].matrixX == this.matrixX + 1 && containers[i].matrixY == this.matrixY) return false
+                if(containers[i].x == this.x + 1 && containers[i].y == this.y) return false
             }
             return true;
         }
@@ -139,68 +130,68 @@ class Player {
 
 class Container {
     constructor(x, y) {
-        this.matrixX = x;
-        this.matrixY = y;
+        this.x = x;
+        this.y = y;
     }
     Draw() {
         let img = document.createElement("img");
         img.src = "images/container.png";
-        ctx.drawImage(img, this.matrixX * 60, this.matrixY * 60, cellSize, cellSize);
+        ctx.drawImage(img, this.x * cellSize, this.y * cellSize, cellSize, cellSize);
     }
+
     CheckMove(y, x, dir) {
         let check = true;
-        if (dir == "l" && matrix[y][x - 1] != 'X' && this.matrixX == x && this.matrixY == y) {
+        if (dir == "l" && matrix[y][x - 1] != 'X' && this.x == x && this.y == y) {
             for (let i = 0; i < containers.length; i++) {
-                if (containers[i].matrixX == x - 1 && containers[i].matrixY == y) {
+                if (containers[i].x == x - 1 && containers[i].y == y) {
                     check = false;
                 }
             }
             if (check) {
-                this.matrixX--;
+                this.x--;
                 return true;
             }
         }
-        if (dir == "r" && matrix[y][x + 1] != 'X' && this.matrixX == x && this.matrixY == y) {
+        if (dir == "r" && matrix[y][x + 1] != 'X' && this.x == x && this.y == y) {
             for (let i = 0; i < containers.length; i++) {
-                if (containers[i].matrixX == x + 1 && containers[i].matrixY == y) {
+                if (containers[i].x == x + 1 && containers[i].y == y) {
                     check = false;
                 }
             }
             if (check) {
-                this.matrixX++;
+                this.x++;
                 return true;
             }
         }
-        if (dir == "u" && matrix[y - 1][x] != 'X' && this.matrixX == x && this.matrixY == y) {
+        if (dir == "u" && matrix[y - 1][x] != 'X' && this.x == x && this.y == y) {
             for (let i = 0; i < containers.length; i++) {
-                if (containers[i].matrixX == x && containers[i].matrixY == y - 1) {
+                if (containers[i].x == x && containers[i].y == y - 1) {
                     check = false;
                 }
             }
             if (check) {
-                this.matrixY--;
+                this.y--;
                 return true;
             }
         }
-        if (dir == "d" && matrix[y + 1][x] != 'X' && this.matrixX == x && this.matrixY == y) {
+        if (dir == "d" && matrix[y + 1][x] != 'X' && this.x == x && this.y == y) {
             for (let i = 0; i < containers.length; i++) {
-                if (containers[i].matrixX == x && containers[i].matrixY == y + 1) {
+                if (containers[i].x == x && containers[i].y == y + 1) {
                     check = false;
                 }
             }
             if (check) {
-                this.matrixY++;
+                this.y++;
                 return true;
             }
         }
-        this.checkDone();
         return false;
     }
 
     checkDone() { // проверяем, стоит ли коробка на одном из нужных мест
         for (let i = 0; i < matrix.length; i++) {
             for (let j = 0; j < matrix[i].length; j++) {
-                if (matrix[i][j] == "." && this.matrixX == j && this.matrixY == i) {
+                if (matrix[i][j] == "." && this.x == j && this.y == i) {
                     return true;
                 }
             }
@@ -216,8 +207,7 @@ for (var i = 0; i < mapY; i++) { // проходим по циклу чтобы 
             symCount++;
         }
         if (map[symCount] == '@') {
-            startX = j;
-            startY = i;
+            player = new Player(j, i);
         }
         if (map[symCount] == '*') {
             containers.push(new Container(j, i));
@@ -228,11 +218,11 @@ for (var i = 0; i < mapY; i++) { // проходим по циклу чтобы 
 }
 
 class Storage {
-    
     constructor(w, h) {
         this.w = w;
         this.h = h;
     }
+
     Draw() {
         ctx.strokeStyle = "grey";
         for (let i = 0; i < matrix.length; i++) {
@@ -240,11 +230,11 @@ class Storage {
                 if (matrix[i][j] == "X") {
                     let img = document.createElement("img");
                     img.src = "images/wall.png";
-                    ctx.drawImage(img, j * 60, i * 60, cellSize, cellSize);
+                    ctx.drawImage(img, j * cellSize, i * cellSize, cellSize, cellSize);
                 } else if (matrix[i][j] == ".") {
                     let img = document.createElement("img");
                     img.src = "images/dagger.png";
-                    ctx.drawImage(img, j * 60, i * 60, cellSize, cellSize);
+                    ctx.drawImage(img, j * cellSize, i * cellSize, cellSize, cellSize);
                 }
             }
         }
@@ -260,7 +250,6 @@ function Start() {
     storage = new Storage(mapX * cellSize, mapY * cellSize);
     storage.Draw();
 
-    player = new Player(startX * cellSize + 30, startY * cellSize + 30);
     player.Draw();
     requestAnimationFrame(Update);
 }
